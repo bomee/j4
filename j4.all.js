@@ -1,5 +1,5 @@
 // ***************************************************************
-// j4 framework common library
+// j4 javascript common library
 // Browser compatibility: Chrome  Firefox1.8+ IE9+
 // author:  bomee  
 // date:  2015-07-31

@@ -1,1 +1,1 @@
-# j4 javascript library
+# j4 javascript common library
