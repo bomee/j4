@@ -1,11 +1,14 @@
 ﻿// ***************************************************************
-// image lazy loader.
+// ImagePreLoader and a jquery plugin with ImagePreLoader.
+// Compatible with the retina screen and ordinary screen for the same <img>
 // author:  bomee  
 // date:  2016/3/30
-// version: 1.0
+// version: 1.1
 // ***************************************************************
-!(function($) {
-  function _addClass(ele, className){
+!(function(window){
+  // process element's class, its intention is to remove repeat code.
+  // ImagePreLoader can use anywhere without jQuery.
+  function processClass(ele, className, processFn){
     var eleClass = (' ' + ele.className + ' ').replace(/[\t\r\n\f]/g, ' ');
     var classArray = className.split(/ +/);
     var clazz, i = 0;
@@ -13,89 +16,83 @@
       clazz = classArray[i];
       if(!clazz) continue;
 
-      if (eleClass.indexOf(' ' + clazz + ' ') < 0) {
-        eleClass += clazz + ' ';
-      }
+      eleClass = processFn(eleClass, clazz);
     }
     eleClass = eleClass.replace(/^ +| +$/g, '');
     if(eleClass != ele.className){
       ele.className = eleClass;
     }
   }
-
-  function _removeClass(ele, className){
-    var eleClass = (' ' + ele.className + ' ').replace(/[\t\r\n\f]/g, ' ');
-    var classArray = className.split(/ +/);
-    var clazz, i = 0;
-    for(; i < classArray.length; i++){
-      clazz = classArray[i];
-      if(!clazz) continue;
-
-      while (eleClass.indexOf(' ' + clazz + ' ') > -1) {
-        eleClass = eleClass.replace(' ' + clazz + ' ', '');
+  var _private = {
+    addClass: (function() {
+      function processFn(eleClass, clazz){
+        return eleClass.indexOf(' ' + clazz + ' ') < 0 ? eleClass + clazz + ' ' : eleClass;
       }
+      return function(ele, className) {
+        processClass(ele, className, processFn);
+      }
+    })(),
+    removeClass: (function(ele, className){
+      function processFn(eleClass, clazz){
+        while (eleClass.indexOf(' ' + clazz + ' ') > -1) {
+          eleClass = eleClass.replace(' ' + clazz + ' ', '');
+        }
+        return eleClass;
+      }
+      return function(ele, className) {
+        processClass(ele, className, processFn);
+      }
+    })(),
+    done: function(loader){
+      _private.removeClass(loader.ele, ImagePreLoader.defaults.loadingClass);
+      _private.addClass(loader.ele, ImagePreLoader.defaults.successClass);
+      loader.ele.setAttribute('src', loader.getUrl());  
+    },
+    error: function(loader){
+      _private.removeClass(loader.ele, ImagePreLoader.defaults.loadingClass);
+      _private.addClass(loader.ele, ImagePreLoader.defaults.errorClass);  
     }
-    
-    eleClass = eleClass.replace(/^ +| + $/g, '');
-    if(eleClass != ele.className){
-      ele.className = eleClass;
-    }
-  }
+  };
   
   var ImagePreLoader = window['ImagePreLoader'] = function(ele){
     this.ele = ele;
   };
 
-  ImagePreLoader.DEFAULTS = {
+  // defaults for ImagePreLoader
+  ImagePreLoader.defaults = {
     loadingClass    : "image-lazy-loading",
     successClass    : "image-lazy-success",
-    errorClass      : "image-lazy-error",
-    scrollLazyClass : "image-lazy-scroll"
+    errorClass      : "image-lazy-error"
   };
   
   ImagePreLoader.prototype.getUrl = function(){
-    var url;
-    if(window.devicePixelRatio > 1){
-      url = this.ele.getAttribute('data-src-retina');
-    }
-
-    if(!url){
-      url = this.ele.getAttribute('data-src');
-    }
-    return url;
+    return window.devicePixelRatio > 1 
+      ? this.ele.getAttribute('data-src-retina') || this.ele.getAttribute('data-src') 
+      : this.ele.getAttribute('data-src');
   }
 
-  ImagePreLoader.prototype.done = function(){
-    _removeClass(this.ele, ImagePreLoader.DEFAULTS.loadingClass);
-    _addClass(this.ele, ImagePreLoader.DEFAULTS.successClass);
-    this.ele.setAttribute('src', this.getUrl());
-  };
-
-  ImagePreLoader.prototype.error = function(){
-    _removeClass(this.ele, ImagePreLoader.DEFAULTS.loadingClass);
-    _addClass(this.ele, ImagePreLoader.DEFAULTS.errorClass);
-  };
-
   ImagePreLoader.prototype.load = function(){
-    _addClass(this.ele, ImagePreLoader.DEFAULTS.loadingClass);
+    _private.addClass(this.ele, ImagePreLoader.defaults.loadingClass);
     var img = new Image();
     img.src = this.getUrl();
     var that = this;
     if (img.complete) {
-      that.done();
+      _private.done.call(that, that);
       return;
     }
 
     img.onload = function () {
-      that.done();
+      _private.done.call(that, that);
     };
 
     img.onerror = function(){
-      that.error();
+      _private.error.call(that, that);
     }
   };
+})(window);
 
-
+// jQuery plugin for ImagePreLoader
+!(function(window, $) {
   $.fn.imageLazy = function() {
     var $w = $(window), 
         $remains = this;
@@ -104,7 +101,7 @@
       var $visibleEles = $remains.filter(function() {
         var $e = $(this);
         if ($e.is(":hidden")) return;
-        if (!$e.hasClass(ImagePreLoader.DEFAULTS.scrollLazyClass)) return true;
+        if (!$e.hasClass($.fn.imageLazy.defaults.scrollLazyClass)) return true;
         var wt = $w.scrollTop(),
             wb = wt + $w.height(),
             et = $e.offset().top,
@@ -129,4 +126,15 @@
     
     return this;
   };
-})(window.jQuery);
+
+  $.fn.imageLazy.defaults = {
+    autoInit        : true,
+    scrollLazyClass : "image-lazy-scroll"
+  };
+
+  if($.fn.imageLazy.defaults.autoInit){
+    $(function(){
+      $('.image-lazy').imageLazy();
+    });
+  }
+})(window, window.jQuery);
