@@ -98,7 +98,7 @@
 
   $.fn.imageLazy = function() {
     var $w = $(window), 
-        $remains = this; // 未加载的
+        $remains = this;
 
     function imageLazy() {
       var $visibleEles = $remains.filter(function() {
