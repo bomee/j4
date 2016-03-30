@@ -7,8 +7,9 @@
 // ***************************************************************
 !(function(window){
   // ImagePreLoader can use anywhere without jQuery.
-  var ImagePreLoader = window['ImagePreLoader'] = function(ele){
+  var ImagePreLoader = window['ImagePreLoader'] = function(ele, opts){
     this.ele = ele;
+    this.opts = opts || {};
   };
 
   // defaults for ImagePreLoader
@@ -58,11 +59,13 @@
     done: function(loader){
       _private.removeClass(loader.ele, ImagePreLoader.defaults.loadingClass);
       _private.addClass(loader.ele, ImagePreLoader.defaults.successClass);
-      loader.ele.setAttribute('src', loader.getUrl());  
+      loader.ele.setAttribute('src', loader.getUrl());
+      loader.opts.done && loader.opts.done.call(loader); 
     },
     error: function(loader){
       _private.removeClass(loader.ele, ImagePreLoader.defaults.loadingClass);
-      _private.addClass(loader.ele, ImagePreLoader.defaults.errorClass);  
+      _private.addClass(loader.ele, ImagePreLoader.defaults.errorClass);
+      loader.opts.error && loader.opts.error.call(loader);
     }
   };
   
@@ -96,26 +99,26 @@
 // jQuery plugin for ImagePreLoader
 !(function(window, $) {
   $.fn.imageLazy = function() {
-    var $w = $(window), 
-        $remains = this;
+    var $win = $(window), 
+        $remainEles = this;
 
     function imageLazy() {
-      var $visibleEles = $remains.filter(function() {
+      var $visibleEles = $remainEles.filter(function() {
         var $e = $(this);
         if ($e.is(":hidden")) return;
         if (!$e.hasClass($.fn.imageLazy.defaults.scrollLazyClass)) return true;
-        var wt = $w.scrollTop(),
-            wb = wt + $w.height(),
+        var wt = $win.scrollTop(),
+            wb = wt + $win.height(),
             et = $e.offset().top,
             eb = et + $e.height();
 
         return eb >= wt && et <= wb;
       });
       
-      $remains = $remains.not($visibleEles.trigger("download.imageLazy"));
+      $remainEles = $remainEles.not($visibleEles.trigger("download.imageLazy"));
 
-      if(!$remains.length){
-        $w.off("scroll.imageLazy resize.imageLazy");
+      if(!$remainEles.length){
+        $win.off("scroll.imageLazy resize.imageLazy");
       }
     }
 
@@ -123,7 +126,7 @@
       new ImagePreLoader(this).load();
     });
 
-    $w.on("scroll.imageLazy resize.imageLazy", imageLazy);
+    $win.on("scroll.imageLazy resize.imageLazy", imageLazy);
     imageLazy();
     
     return this;
