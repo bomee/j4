@@ -6,8 +6,19 @@
 // version: 1.1
 // ***************************************************************
 !(function(window){
-  // process element's class, its intention is to remove repeat code.
   // ImagePreLoader can use anywhere without jQuery.
+  var ImagePreLoader = window['ImagePreLoader'] = function(ele){
+    this.ele = ele;
+  };
+
+  // defaults for ImagePreLoader
+  ImagePreLoader.defaults = {
+    loadingClass    : "image-lazy-loading",
+    successClass    : "image-lazy-success",
+    errorClass      : "image-lazy-error"
+  };
+
+  // process element's class, its intention is to remove repeat code.
   function processClass(ele, className, processFn){
     var eleClass = (' ' + ele.className + ' ').replace(/[\t\r\n\f]/g, ' ');
     var classArray = className.split(/ +/);
@@ -23,6 +34,8 @@
       ele.className = eleClass;
     }
   }
+
+  // private method for ImagePreLoader. 
   var _private = {
     addClass: (function() {
       function processFn(eleClass, clazz){
@@ -54,17 +67,7 @@
     }
   };
   
-  var ImagePreLoader = window['ImagePreLoader'] = function(ele){
-    this.ele = ele;
-  };
-
-  // defaults for ImagePreLoader
-  ImagePreLoader.defaults = {
-    loadingClass    : "image-lazy-loading",
-    successClass    : "image-lazy-success",
-    errorClass      : "image-lazy-error"
-  };
-  
+  // prototype method
   ImagePreLoader.prototype.getUrl = function(){
     return window.devicePixelRatio > 1 
       ? this.ele.getAttribute('data-src-retina') || this.ele.getAttribute('data-src') 
