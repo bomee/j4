@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>
+    jquery-image-lazy-test    
+  </title>
+  <style>
+    img {
+      width:480px;
+      height: auto;
+      min-height: 200px;
+    }
+  </style>
+</head>
+<body>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://img4.duitang.com/uploads/item/201408/30/20140830185433_FnJLA.jpeg">
+  </p>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://photo.l99.com/bigger/32/1371289116463_bv5ct5.jpg">
+  </p>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://tupian.enterdesk.com/2013/xll/012/26/3/1.jpg">
+  </p>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://img161.poco.cn/mypoco/myphoto/20100424/19/53310080201004241856521800459127582_005.jpg">
+  </p>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://img1.goepe.com/201303/1362711681_6600.jpg">
+  </p>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://article.fd.zol-img.com.cn/t_s640x2000/g1/M07/0C/0D/Cg-4jVOpQWmIVPnYAAHFv0U3gXkAAOjOwAtyyUAAcXX661.jpg">
+  </p>
+  <p>
+    <img class="image-lazy-scroll" data-src="http://img5q.duitang.com/uploads/item/201408/30/20140830185456_Eijik.jpeg">
+  </p>
+</body>
+<script src="http://lib.sinaapp.com/js/jquery/1.9.1/jquery-1.9.1.min.js"></script>
+<script src="jquery.image-lazy.js"></script>
+<script>
+  $(function(){
+    $('img').imageLazy();
+  });  
+</script>
+</html>
