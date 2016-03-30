@@ -22,8 +22,7 @@
   function processClass(ele, className, processFn){
     var eleClass = (' ' + ele.className + ' ').replace(/[\t\r\n\f]/g, ' ');
     var classArray = className.split(/ +/);
-    var clazz, i = 0;
-    for(; i < classArray.length; i++){
+    for(var i = classArray.length, clazz; i >=0; i--){
       clazz = classArray[i];
       if(!clazz) continue;
 
