@@ -116,7 +116,7 @@
       $remains = $remains.not($visibleEles.trigger("download.imageLazy"));
 
       if(!$remains.length){
-        $w.off("scroll.imageLazy resize.imageLazy lookup.imageLazy");
+        $w.off("scroll.imageLazy resize.imageLazy");
       }
     }
 
@@ -124,7 +124,7 @@
       new ImagePreLoader(this).load();
     });
 
-    $w.on("scroll.imageLazy resize.imageLazy lookup.imageLazy", imageLazy);
+    $w.on("scroll.imageLazy resize.imageLazy", imageLazy);
     imageLazy();
     
     return this;
